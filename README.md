@@ -58,18 +58,20 @@
 4. 选择集成并给予 "Can edit" 权限
 5. 复制数据库 URL 中的 Database ID（32位字符串）
 
-### 3. 配置 GitHub Secrets
+### 3. 组织级 Secrets 配置
 
-在你的 GitHub 仓库中设置以下 Secrets：
+**重要说明**：我们已经在组织 `ericmao2008` 的 **Secrets & Variables** 中配置了所有必需的密钥。
 
-1. 进入仓库 → Settings → Secrets and variables → Actions
-2. 点击 "New repository secret"
-3. 添加以下两个 secrets：
+#### 已配置的组织级 Secrets：
+- `NOTION_TOKEN` - Notion 集成 Token
+- `NOTION_DB_SIXMIN` - Notion 数据库 ID（6分钟英语项目）
+- `DATABASE_ID` - 通用数据库 ID（备用）
 
-```
-NOTION_TOKEN = secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-NOTION_DATABASE_ID = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
+#### 已配置的组织级 Variables：
+- `LOG_LEVEL` - 日志级别（默认：`info`）
+- `DRY_RUN` - 试运行模式（默认：`0`）
+
+**无需在仓库级别重复配置 Secrets！** 工作流会自动继承组织级配置。
 
 ### 4. 设置 Notion Calendar 视图
 
@@ -138,7 +140,17 @@ export NOTION_DATABASE_ID="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ### 运行脚本
 
 ```bash
+# 正常运行
 npm run run
+
+# 试运行模式（不实际更新 Notion）
+npm run dry-run
+
+# 调试模式（详细日志）
+npm run debug
+
+# 本地开发（使用 .env 文件）
+npm run dev
 ```
 
 ## GitHub Actions
@@ -154,6 +166,22 @@ npm run run
 4. 可选择填写触发原因
 
 ## 配置选项
+
+### 环境变量配置
+
+脚本支持以下环境变量：
+
+```bash
+# 必需的环境变量
+NOTION_TOKEN=secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+NOTION_DATABASE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# 可选的环境变量
+LOG_LEVEL=info          # 日志级别: error, warn, info, debug
+DRY_RUN=0               # 试运行模式: 0/1 或 false/true
+```
+
+### 脚本常量配置
 
 在 `scripts/notion-review.js` 中可以修改以下常量：
 

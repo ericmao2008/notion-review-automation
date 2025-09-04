@@ -8,7 +8,9 @@
     "run": "node scripts/notion-review.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --env-file=.env scripts/notion-review.js",
-    "install-deps": "npm install"
+    "install-deps": "npm install",
+    "dry-run": "DRY_RUN=1 node scripts/notion-review.js",
+    "debug": "LOG_LEVEL=debug node scripts/notion-review.js"
   },
   "keywords": [
     "notion",

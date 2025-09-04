@@ -7,6 +7,10 @@ import { DateTime } from 'luxon';
 const TZ = "Australia/Brisbane";
 const DEFAULT_HOUR = 9;
 
+// 从环境变量获取配置
+const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
+const DRY_RUN = process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true';
+
 // 字段映射常量 - 集中管理所有 Notion 属性名
 const FIELDS = {
   date: "Date",
@@ -107,9 +111,27 @@ function toLocalDateISO(baseISO, daysToAdd, keepHourFromBase = false) {
 }
 
 /**
+ * 日志输出函数
+ */
+function log(level, message, ...args) {
+  const levels = { error: 0, warn: 1, info: 2, debug: 3 };
+  const currentLevel = levels[LOG_LEVEL] || levels.info;
+  
+  if (levels[level] <= currentLevel) {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`, ...args);
+  }
+}
+
+/**
  * 更新页面属性
  */
 async function updatePage(pageId, payload) {
+  if (DRY_RUN) {
+    log('info', `[DRY RUN] Would update page ${pageId}:`, JSON.stringify(payload, null, 2));
+    return true;
+  }
+  
   try {
     await notion.pages.update({
       page_id: pageId,
@@ -117,7 +139,7 @@ async function updatePage(pageId, payload) {
     });
     return true;
   } catch (error) {
-    console.error(`Failed to update page ${pageId}:`, error.message);
+    log('error', `Failed to update page ${pageId}:`, error.message);
     return false;
   }
 }
@@ -133,7 +155,7 @@ async function processPage(page) {
     // 获取基础日期
     const baseDate = getDate(page, FIELDS.date);
     if (!baseDate) {
-      console.log(`⏭️  Skipping page "${pageTitle}" - missing Date field`);
+      log('warn', `⏭️  Skipping page "${pageTitle}" - missing Date field`);
       return { status: 'skipped', reason: 'missing_date' };
     }
     
@@ -231,18 +253,18 @@ async function processPage(page) {
     if (Object.keys(updatePayload).length > 0) {
       const success = await updatePage(pageId, updatePayload);
       if (success) {
-        console.log(`✅ ${action.toUpperCase()}: "${pageTitle}" (${currentStage || 'null'} → ${updatePayload[FIELDS.stage]?.select?.name || currentStage})`);
+        log('info', `✅ ${action.toUpperCase()}: "${pageTitle}" (${currentStage || 'null'} → ${updatePayload[FIELDS.stage]?.select?.name || currentStage})`);
         return { status: 'updated', action };
       } else {
         return { status: 'error', reason: 'update_failed' };
       }
     } else {
-      console.log(`⏸️  No change: "${pageTitle}" (${currentStage})`);
+      log('debug', `⏸️  No change: "${pageTitle}" (${currentStage})`);
       return { status: 'no_change' };
     }
     
   } catch (error) {
-    console.error(`❌ Error processing page "${pageTitle}":`, error.message);
+    log('error', `❌ Error processing page "${pageTitle}":`, error.message);
     return { status: 'error', reason: error.message };
   }
 }
@@ -307,49 +329,51 @@ async function iterateDatabase(databaseId) {
  * 主函数
  */
 async function main() {
-  console.log('🚀 Starting Notion Review Automation...');
-  console.log(`📅 Timezone: ${TZ}`);
-  console.log(`⏰ Default hour: ${DEFAULT_HOUR}:00`);
-  console.log('');
+  log('info', '🚀 Starting Notion Review Automation...');
+  log('info', `📅 Timezone: ${TZ}`);
+  log('info', `⏰ Default hour: ${DEFAULT_HOUR}:00`);
+  log('info', `📊 Log level: ${LOG_LEVEL}`);
+  log('info', `🧪 Dry run mode: ${DRY_RUN ? 'ENABLED' : 'DISABLED'}`);
+  log('info', '');
   
   // 检查环境变量
   if (!process.env.NOTION_TOKEN) {
-    console.error('❌ NOTION_TOKEN environment variable is required');
+    log('error', '❌ NOTION_TOKEN environment variable is required');
     process.exit(1);
   }
   
   if (!process.env.NOTION_DATABASE_ID) {
-    console.error('❌ NOTION_DATABASE_ID environment variable is required');
+    log('error', '❌ NOTION_DATABASE_ID environment variable is required');
     process.exit(1);
   }
   
   try {
     const results = await iterateDatabase(process.env.NOTION_DATABASE_ID);
     
-    console.log('');
-    console.log('📊 Summary:');
-    console.log(`   Total pages processed: ${results.total}`);
-    console.log(`   Pages updated: ${results.updated}`);
-    console.log(`   Pages skipped: ${results.skipped}`);
-    console.log(`   Errors: ${results.errors}`);
-    console.log('');
-    console.log('📈 Actions breakdown:');
-    console.log(`   Initialized (D1): ${results.actions.initialized}`);
-    console.log(`   Advanced stages: ${results.actions.advanced}`);
-    console.log(`   Synced calendar: ${results.actions.synced_calendar}`);
-    console.log(`   No changes: ${results.actions.no_change}`);
+    log('info', '');
+    log('info', '📊 Summary:');
+    log('info', `   Total pages processed: ${results.total}`);
+    log('info', `   Pages updated: ${results.updated}`);
+    log('info', `   Pages skipped: ${results.skipped}`);
+    log('info', `   Errors: ${results.errors}`);
+    log('info', '');
+    log('info', '📈 Actions breakdown:');
+    log('info', `   Initialized (D1): ${results.actions.initialized}`);
+    log('info', `   Advanced stages: ${results.actions.advanced}`);
+    log('info', `   Synced calendar: ${results.actions.synced_calendar}`);
+    log('info', `   No changes: ${results.actions.no_change}`);
     
     if (results.errors > 0) {
-      console.log('');
-      console.log('⚠️  Some errors occurred. Check the logs above for details.');
+      log('warn', '');
+      log('warn', '⚠️  Some errors occurred. Check the logs above for details.');
       process.exit(1);
     }
     
-    console.log('');
-    console.log('✅ Automation completed successfully!');
+    log('info', '');
+    log('info', '✅ Automation completed successfully!');
     
   } catch (error) {
-    console.error('❌ Fatal error:', error.message);
+    log('error', '❌ Fatal error:', error.message);
     process.exit(1);
   }
 }

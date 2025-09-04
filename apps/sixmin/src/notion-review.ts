@@ -21,16 +21,24 @@ export async function maybeAdvanceByScore(notion: Client, page: any, todayISO: s
     if (next !== 'Done') {
       const days = INTERVAL_DAYS[stage as Exclude<Stage,'Done'>];
       props[FIELD.next] = { date: { start: addDaysISO(todayISO, days) } };
-      // 若 target 不是 Formula，则写入 Select/Rich text（按你建列类型二选一）
-      if (p[FIELD.target]?.type !== 'formula') {
-        // Select 版本：
+      // 根据字段类型设置 Review Target
+      if (p[FIELD.target]?.type === 'select') {
         props[FIELD.target] = { select: { name: TARGET[next] } };
-        // 如果是 Rich text，请改为：
-        // props[FIELD.target] = { rich_text: [{ text: { content: TARGET[next] } }] };
+      } else if (p[FIELD.target]?.type === 'rich_text') {
+        props[FIELD.target] = { rich_text: [{ text: { content: TARGET[next] } }] };
+      } else if (p[FIELD.target]?.type !== 'formula') {
+        // 默认尝试 Select 类型
+        props[FIELD.target] = { select: { name: TARGET[next] } };
       }
     } else {
       props[FIELD.next] = { date: null };
-      if (p[FIELD.target]?.type !== 'formula') {
+      // 根据字段类型设置 Review Target (Done 阶段)
+      if (p[FIELD.target]?.type === 'select') {
+        props[FIELD.target] = { select: { name: TARGET[next] } };
+      } else if (p[FIELD.target]?.type === 'rich_text') {
+        props[FIELD.target] = { rich_text: [{ text: { content: TARGET[next] } }] };
+      } else if (p[FIELD.target]?.type !== 'formula') {
+        // 默认尝试 Select 类型
         props[FIELD.target] = { select: { name: TARGET[next] } };
       }
     }

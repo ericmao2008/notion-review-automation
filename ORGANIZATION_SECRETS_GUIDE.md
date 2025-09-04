@@ -27,11 +27,7 @@
 
 ### 1. 业务仓库配置
 
-在业务仓库的 GitHub Actions 工作流中，统一使用：
-
-```yaml
-secrets: inherit
-```
+在业务仓库的 GitHub Actions 工作流中，直接使用组织级 Secrets：
 
 **示例：**
 ```yaml
@@ -47,7 +43,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    secrets: inherit  # 🔑 继承组织级 Secrets
     
     steps:
     - name: Checkout code
@@ -170,13 +165,12 @@ secrets:
 
 ## ✅ 正确的配置模式
 
-### 1. 直接继承模式
+### 1. 直接使用模式
 
 ```yaml
 jobs:
   my-job:
     runs-on: ubuntu-latest
-    secrets: inherit  # 🔑 直接继承所有组织级 Secrets
     
     steps:
     - name: Run script
@@ -235,7 +229,6 @@ on:
 jobs:
   review-automation:
     runs-on: ubuntu-latest
-    secrets: inherit  # 🔑 继承组织级 Secrets
     
     steps:
     - name: Checkout code
@@ -254,6 +247,8 @@ jobs:
       env:
         NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         NOTION_DATABASE_ID: ${{ secrets.NOTION_DB_SIXMIN || secrets.DATABASE_ID }}
+        LOG_LEVEL: ${{ vars.LOG_LEVEL || 'info' }}
+        DRY_RUN: ${{ vars.DRY_RUN || '0' }}
       run: npm run run
 ```
 
@@ -298,12 +293,13 @@ jobs:
 
 ### 关键要点
 1. **统一管理**：所有密钥在组织级别统一管理
-2. **继承使用**：使用 `secrets: inherit` 继承组织级配置
+2. **直接使用**：在业务仓库中直接使用组织级 Secrets
 3. **避免重复**：不在仓库级别重复配置相同的 Secrets
 4. **环境映射**：正确映射组织级 Secrets 和 Variables 到环境变量
 
 ### 最佳实践
-- ✅ 使用 `secrets: inherit` 继承组织级 Secrets
+- ✅ 在业务仓库中直接使用 `${{ secrets.SECRET_NAME }}`
+- ✅ 在可复用工作流中使用 `secrets: inherit`
 - ✅ 在可复用工作流中统一映射环境变量
 - ✅ 使用默认值处理可选的 Variables
 - ✅ 避免本地 .env 文件和硬编码密钥

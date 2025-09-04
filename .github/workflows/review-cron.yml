@@ -18,7 +18,6 @@ on:
 jobs:
   review-automation:
     runs-on: ubuntu-latest
-    secrets: inherit  # 🔑 继承组织级 Secrets
     
     steps:
     - name: Checkout code

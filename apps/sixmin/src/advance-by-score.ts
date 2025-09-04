@@ -22,12 +22,12 @@ function log(level: string, message: string, ...args: any[]) {
 }
 
 async function scanAndAdvancePages() {
-  if (!NOTION_TOKEN || !NOTION_DATABASE_ID) {
+  if (!DRY_RUN && (!NOTION_TOKEN || !NOTION_DATABASE_ID)) {
     log('error', '❌ NOTION_TOKEN and NOTION_DATABASE_ID environment variables are required');
     process.exit(1);
   }
 
-  const notion = new Client({ auth: NOTION_TOKEN });
+  const notion = new Client({ auth: NOTION_TOKEN || 'dummy-token' });
   const todayISO = new Date().toISOString().slice(0, 10);
   
   log('info', '🚀 Starting score-based advancement scan...');
@@ -36,14 +36,20 @@ async function scanAndAdvancePages() {
   log('info', `🧪 Dry run mode: ${DRY_RUN ? 'ENABLED' : 'DISABLED'}`);
   log('info', '');
 
+  if (DRY_RUN) {
+    log('info', '🧪 DRY RUN: Skipping actual Notion API calls');
+    log('info', '✅ Dry run completed successfully!');
+    return;
+  }
+
   try {
     // 验证数据库结构
-    await validateDatabaseSchema(notion, NOTION_DATABASE_ID);
+    await validateDatabaseSchema(notion, NOTION_DATABASE_ID!);
     log('info', '');
 
     // 查询所有未完成的页面
     const response = await notion.databases.query({
-      database_id: NOTION_DATABASE_ID,
+      database_id: NOTION_DATABASE_ID!,
       filter: {
         property: FIELD.stage,
         select: {

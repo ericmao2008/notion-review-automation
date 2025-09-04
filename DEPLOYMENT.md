@@ -1,9 +1,42 @@
-# 🚀 部署指南
+# 🚀 部署指南 - Organization 版本
 
 ## 当前状态
 ✅ 项目代码已准备完成  
 ✅ Git仓库已初始化并提交  
 🔄 需要完成以下步骤进行部署
+
+---
+
+## 第一步：设置 Organization 级别的 Notion 集成
+
+### 1.1 创建 Organization 集成
+
+1. **访问 Organization 集成管理**
+   - 访问：https://www.notion.so/my-integrations
+   - 确保你正在管理 Organization 级别的集成
+   - 点击 "New integration"
+
+2. **填写集成信息**
+   - **Name**: `Review Automation`
+   - **Associated workspace**: 选择你的 Organization 工作区
+   - **Logo**: 可选，上传一个图标
+   - **Description**: `Automated review stage progression for spaced repetition learning`
+
+3. **配置集成权限**
+   - **Capabilities**: 确保勾选 "Read content" 和 "Update content"
+   - **User information**: 根据需要选择是否允许访问用户信息
+
+4. **获取集成 Token**
+   - 复制生成的 **Internal Integration Token**（以 `secret_` 开头）
+   - 保存好这个token，稍后需要用到
+
+### 1.2 Organization 集成注意事项
+
+- ✅ 集成创建在 Organization 级别，所有成员都可以使用
+- ✅ 统一的权限管理和安全控制
+- ✅ 便于团队协作和共享
+- ⚠️ 需要 Organization 管理员权限来创建集成
+- ⚠️ 集成 token 由 Organization 管理员管理，团队成员无需单独创建
 
 ---
 
@@ -54,26 +87,38 @@ git push -u origin main
 
 **Secret 1:**
 - **Name**: `NOTION_TOKEN`
-- **Value**: 你的 Notion 集成 token（以 `secret_` 开头）
+- **Value**: 你的 Organization Notion 集成 token（以 `secret_` 开头）
 
 **Secret 2:**
 - **Name**: `NOTION_DATABASE_ID`
 - **Value**: 你的 Notion 数据库 ID（32位字符串）
 
+### 3.3 Organization 集成的 Secret 管理
+
+- 🔐 **安全建议**: 如果使用 Organization 级别的集成，建议在 Organization 级别设置 Secrets
+- 🔄 **共享访问**: 团队成员可以共享使用同一个集成 token
+- 📋 **权限控制**: 通过 Notion 数据库的分享权限控制访问范围
+
 ---
 
 ## 第四步：配置 Notion 数据库
 
-### 4.1 分享数据库给集成
+### 4.1 分享数据库给 Organization 集成
 
 1. 打开你的 Notion 数据库
 2. 点击右上角的 **Share** 按钮
 3. 点击 **Invite**
-4. 搜索你的集成名称：`Review Automation`
+4. 搜索你的 Organization 集成名称：`Review Automation`
 5. 选择集成并给予 **Can edit** 权限
 6. 点击 **Invite**
 
-### 4.2 验证数据库字段
+### 4.2 Organization 数据库权限管理
+
+- 🏢 **Organization 级别**: 集成可以访问 Organization 内所有分享给它的数据库
+- 👥 **团队协作**: 多个团队成员可以共享同一个数据库和自动化流程
+- 🔒 **权限控制**: 通过数据库分享设置控制集成的访问范围
+
+### 4.3 验证数据库字段
 
 确保你的数据库包含以下字段（名称必须完全匹配）：
 
@@ -89,7 +134,7 @@ git push -u origin main
 | `Calendar Date` | Date | 日历日期（脚本同步） |
 | `Last Review Date` | Date | 最后复习日期（可选） |
 
-### 4.3 创建 Calendar 视图
+### 4.4 创建 Calendar 视图
 
 1. 在数据库页面点击 **Add a view** → **Calendar**
 2. 给视图命名：`Review Calendar`
@@ -150,13 +195,37 @@ GitHub Actions 已配置为每天澳大利亚布里斯班时间 09:00 自动运�
 
 ---
 
+## Organization 部署的特殊考虑
+
+### 7.1 团队协作
+
+- 👥 **共享集成**: 整个团队使用同一个 Organization 集成
+- 🔄 **统一管理**: 集成 token 由管理员统一管理
+- 📊 **数据隔离**: 通过数据库分享权限控制访问范围
+
+### 7.2 安全最佳实践
+
+- 🔐 **最小权限原则**: 只给集成必要的数据库访问权限
+- 📋 **定期审查**: 定期检查集成的访问权限
+- 🔄 **Token 轮换**: 定期更新集成 token（如需要）
+
+### 7.3 多数据库支持
+
+如果团队有多个学习数据库，可以：
+- 为每个数据库设置相同的字段结构
+- 使用同一个集成 token
+- 在 GitHub Actions 中配置多个数据库 ID（需要修改脚本）
+
+---
+
 ## 故障排除
 
 ### 常见问题
 
 1. **权限错误**
-   - 确保集成有数据库的编辑权限
+   - 确保 Organization 集成有数据库的编辑权限
    - 检查 NOTION_TOKEN 是否正确
+   - 确认你是 Organization 管理员或有创建集成的权限
 
 2. **字段名错误**
    - 检查数据库字段名是否与脚本中的完全匹配
@@ -165,29 +234,38 @@ GitHub Actions 已配置为每天澳大利亚布里斯班时间 09:00 自动运�
 3. **GitHub Actions 失败**
    - 检查 Secrets 是否正确设置
    - 查看 Actions 日志了解具体错误
+   - 确认 Organization 集成的权限设置
 
 4. **Calendar 视图不显示**
    - 确保 Calendar 视图的 "By date" 设置选择了 `Calendar Date` 字段
+
+5. **Organization 集成问题**
+   - 确认集成是在 Organization 级别创建的
+   - 检查 Organization 的集成管理权限
+   - 确认数据库已正确分享给 Organization 集成
 
 ### 获取帮助
 
 如果遇到问题，请：
 1. 查看 GitHub Actions 的详细日志
 2. 检查 Notion 数据库的字段设置
-3. 确认集成权限配置
+3. 确认 Organization 集成权限配置
 4. 参考 README.md 中的故障排除部分
+5. 联系 Organization 管理员检查集成设置
 
 ---
 
 ## 部署完成检查清单
 
+- [ ] Organization 级别的 Notion 集成已创建
+- [ ] 集成 token 已获取并保存
 - [ ] GitHub 仓库已创建并推送代码
 - [ ] GitHub Secrets 已配置（NOTION_TOKEN, NOTION_DATABASE_ID）
-- [ ] Notion 集成已创建并获取 token
-- [ ] 数据库已分享给集成并设置权限
+- [ ] 数据库已分享给 Organization 集成并设置权限
 - [ ] 数据库字段名称正确匹配
 - [ ] Calendar 视图已创建并选择 Calendar Date 字段
 - [ ] 手动触发 GitHub Actions 测试成功
 - [ ] 验证 Notion 数据库中的数据处理正确
+- [ ] 团队权限和访问控制已正确配置
 
-🎉 **恭喜！部署完成！**
+🎉 **恭喜！Organization 级别的部署完成！**

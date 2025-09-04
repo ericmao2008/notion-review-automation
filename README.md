@@ -24,6 +24,7 @@
 
 ### 1. 创建 Notion 集成
 
+#### 个人集成（推荐用于个人项目）
 1. 访问 [Notion Integrations](https://www.notion.so/my-integrations)
 2. 点击 "New integration"
 3. 填写集成信息：
@@ -31,6 +32,23 @@
    - Associated workspace: 选择你的工作区
 4. 点击 "Submit"
 5. 复制生成的 **Internal Integration Token**（以 `secret_` 开头）
+
+#### Organization 集成（推荐用于团队项目）
+1. 访问 [Notion Integrations](https://www.notion.so/my-integrations)
+2. 确保在 Organization 级别创建集成
+3. 点击 "New integration"
+4. 填写集成信息：
+   - Name: `Review Automation`
+   - Associated workspace: 选择你的 Organization 工作区
+   - Description: `Automated review stage progression for spaced repetition learning`
+5. 配置权限：确保勾选 "Read content" 和 "Update content"
+6. 点击 "Submit"
+7. 复制生成的 **Internal Integration Token**（以 `secret_` 开头）
+
+**Organization 集成的优势：**
+- ✅ 统一管理，团队成员共享使用
+- ✅ 更好的权限控制和安全性
+- ✅ 便于团队协作和部署
 
 ### 2. 分享数据库给集成
 

@@ -1,0 +1,26 @@
+{
+  "name": "notion-review-automation",
+  "version": "1.0.0",
+  "description": "Automated Notion review stage progression with GitHub Actions",
+  "type": "module",
+  "main": "scripts/notion-review.js",
+  "scripts": {
+    "run": "node scripts/notion-review.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "notion",
+    "automation",
+    "review",
+    "spaced-repetition"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@notionhq/client": "^2.2.14",
+    "luxon": "^3.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

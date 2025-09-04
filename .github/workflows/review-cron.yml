@@ -1,0 +1,48 @@
+name: Notion Review Automation
+
+on:
+  # 手动触发
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual run'
+        required: false
+        default: 'Manual trigger'
+        type: string
+
+  # 定时触发 - 每天澳大利亚布里斯班时间 09:00 (UTC 23:00)
+  # 注意：GitHub Actions 使用 UTC 时间
+  schedule:
+    - cron: '0 23 * * *'  # 每天 UTC 23:00 = AEST 09:00
+
+jobs:
+  review-automation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run Notion Review Automation
+      env:
+        NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+      run: npm run run
+      
+    - name: Report completion
+      if: always()
+      run: |
+        echo "Workflow completed at $(date)"
+        echo "Trigger: ${{ github.event_name }}"
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "Manual trigger reason: ${{ github.event.inputs.reason }}"
+        fi

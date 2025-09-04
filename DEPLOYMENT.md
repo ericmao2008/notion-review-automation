@@ -48,7 +48,10 @@
 2. 填写仓库信息：
    - **Repository name**: `notion-review-automation`
    - **Description**: `Automated Notion review stage progression with GitHub Actions`
-   - **Visibility**: Private（推荐）或 Public
+   - **Visibility**: **Private（强烈推荐）**
+     - ✅ Private 仓库更安全，保护您的 Notion token
+     - ✅ 与 Notion Organization 集成权限无关
+     - ✅ 只有您和授权用户可以访问代码
    - **不要**勾选 "Add a README file"（我们已经有了）
 3. 点击 "Create repository"
 

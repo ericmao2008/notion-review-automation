@@ -1,0 +1,13 @@
+# Notion Review Automation 环境变量配置
+# 复制此文件为 .env 并填入实际值
+
+# Notion 集成 Token (从 https://www.notion.so/my-integrations 获取)
+NOTION_TOKEN=secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Notion 数据库 ID (从数据库 URL 中提取的32位字符串)
+NOTION_DATABASE_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# 使用方法:
+# 1. 复制此文件: cp config.example .env
+# 2. 编辑 .env 文件，填入实际的 token 和数据库 ID
+# 3. 运行: npm run run

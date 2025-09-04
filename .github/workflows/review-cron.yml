@@ -10,10 +10,10 @@ on:
         default: 'Manual trigger'
         type: string
 
-  # 定时触发 - 每天澳大利亚布里斯班时间 09:00 (UTC 23:00)
+  # 定时触发 - 每天澳大利亚布里斯班时间 05:00 (UTC 19:00)
   # 注意：GitHub Actions 使用 UTC 时间
   schedule:
-    - cron: '0 23 * * *'  # 每天 UTC 23:00 = AEST 09:00
+    - cron: '0 19 * * *'  # 每天 UTC 19:00 = AEST 05:00
 
 jobs:
   review-automation:

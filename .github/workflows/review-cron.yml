@@ -18,6 +18,7 @@ on:
 jobs:
   review-automation:
     runs-on: ubuntu-latest
+    secrets: inherit  # 🔑 继承组织级 Secrets
     
     steps:
     - name: Checkout code
@@ -35,7 +36,7 @@ jobs:
     - name: Run Notion Review Automation
       env:
         NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        NOTION_DATABASE_ID: ${{ secrets.NOTION_DB_SIXMIN || secrets.DATABASE_ID }}
       run: npm run run
       
     - name: Report completion

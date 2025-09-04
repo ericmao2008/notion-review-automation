@@ -93,21 +93,23 @@
 
 访问：https://github.com/ericmao2008/notion-review-automation/settings/secrets/actions
 
-### 3.2 添加 Secrets
+### 3.2 组织级 Secrets 配置
 
-点击 "New repository secret"，添加以下两个 secrets：
+**重要说明**：我们已经在组织 `ericmao2008` 的 **Secrets & Variables** 中配置了所有必需的密钥。
 
-**Secret 1:**
-```
-Name: NOTION_TOKEN
-Value: secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
+#### 已配置的组织级 Secrets：
+- `NOTION_TOKEN` - Notion 集成 Token
+- `NOTION_DB_SIXMIN` - Notion 数据库 ID（6分钟英语项目）
+- `DATABASE_ID` - 通用数据库 ID（备用）
 
-**Secret 2:**
-```
-Name: NOTION_DATABASE_ID
-Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
+#### 已配置的组织级 Variables：
+- `YTDLP_PATH` - yt-dlp 路径（默认：`/usr/local/bin/yt-dlp`）
+- `WHISPER_MODEL` - Whisper 模型（默认：`large-v3`）
+- `WHISPER_LANG` - Whisper 语言（默认：`en`）
+- `LOG_LEVEL` - 日志级别（默认：`info`）
+- `DRY_RUN` - 试运行模式（默认：`0`）
+
+**无需在仓库级别重复配置 Secrets！** 工作流会自动继承组织级配置。
 
 ---
 
@@ -213,7 +215,8 @@ cat README.md                # 项目总览
 - [ ] Organization 级别的 Notion 集成已创建
 - [ ] 集成 token 已获取并保存
 - [ ] 数据库已分享给 Organization 集成
-- [ ] GitHub Secrets 已配置（NOTION_TOKEN, NOTION_DATABASE_ID）
+- [ ] **组织级 Secrets 已配置**（NOTION_TOKEN, NOTION_DB_SIXMIN, DATABASE_ID）
+- [ ] **工作流使用 `secrets: inherit` 继承组织级配置**
 - [ ] 数据库字段名称正确匹配
 - [ ] Calendar 视图已创建并选择 Calendar Date 字段
 - [ ] 手动触发 GitHub Actions 测试成功

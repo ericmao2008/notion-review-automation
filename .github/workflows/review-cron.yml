@@ -32,13 +32,21 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Run Notion Review Automation
-      env:
-        NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-        NOTION_DATABASE_ID: ${{ secrets.NOTION_DB_SIXMIN || secrets.DATABASE_ID }}
-        LOG_LEVEL: ${{ vars.LOG_LEVEL || 'info' }}
-        DRY_RUN: ${{ vars.DRY_RUN || '0' }}
-      run: npm run run
+               - name: Run Notion Review Automation
+             env:
+               NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+               NOTION_DATABASE_ID: ${{ secrets.NOTION_DB_SIXMIN || secrets.DATABASE_ID }}
+               LOG_LEVEL: ${{ vars.LOG_LEVEL || 'info' }}
+               DRY_RUN: ${{ vars.DRY_RUN || '0' }}
+             run: npm run run
+
+           - name: Run Score-based Advancement
+             env:
+               NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+               NOTION_DATABASE_ID: ${{ secrets.NOTION_DB_SIXMIN || secrets.DATABASE_ID }}
+               LOG_LEVEL: ${{ vars.LOG_LEVEL || 'info' }}
+               DRY_RUN: ${{ vars.DRY_RUN || '0' }}
+             run: npm run advance
       
     - name: Report completion
       if: always()

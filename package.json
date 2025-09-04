@@ -10,7 +10,10 @@
     "dev": "node --env-file=.env scripts/notion-review.js",
     "install-deps": "npm install",
     "dry-run": "DRY_RUN=1 node scripts/notion-review.js",
-    "debug": "LOG_LEVEL=debug node scripts/notion-review.js"
+    "debug": "LOG_LEVEL=debug node scripts/notion-review.js",
+    "advance": "cd apps/sixmin && npm run build && npm run run",
+    "advance-dry": "cd apps/sixmin && npm run build && npm run dry-run",
+    "advance-debug": "cd apps/sixmin && npm run build && npm run debug"
   },
   "keywords": [
     "notion",

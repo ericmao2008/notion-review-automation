@@ -1,0 +1,21 @@
+{
+  "name": "sixmin-review-advancement",
+  "version": "1.0.0",
+  "description": "Score-based review stage advancement for 6-minute English episodes",
+  "type": "module",
+  "main": "dist/advance-by-score.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "run": "node dist/advance-by-score.js",
+    "dry-run": "DRY_RUN=1 node dist/advance-by-score.js",
+    "debug": "LOG_LEVEL=debug node dist/advance-by-score.js"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.14"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

@@ -11,17 +11,20 @@ const DEFAULT_HOUR = 9;
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 const DRY_RUN = process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true';
 
-// 字段映射常量 - 集中管理所有 Notion 属性名
+// 字段映射常量 - 匹配标准数据库结构
 const FIELDS = {
   date: "Date",
   stage: "Review Stage", 
   nextReview: "Next Review Date",
-  calendarDate: "Calendar Date",
   lastReview: "Last Review Date",
-  scoreD1: "#D1 Score",
-  scoreD3: "#D3 Score", 
-  scoreD7: "#D7 Score",
-  scoreD14: "#D14 Score"
+  reviewedToday: "Reviewed Today",
+  nudgeCount: "Nudge Count",
+  lastNudgeAt: "Last Nudge At",
+  scoreD1: "D1 Score",
+  scoreD3: "D3 Score", 
+  scoreD7: "D7 Score",
+  scoreD14: "D14 Score",
+  scoreD30: "D30 Score"
 };
 
 // 阶段推进规则映射
@@ -68,6 +71,17 @@ function getDate(page, prop) {
     return null;
   }
   return property.date?.start || null;
+}
+
+/**
+ * 获取复选框字段的值
+ */
+function getCheckbox(page, prop) {
+  const property = page.properties[prop];
+  if (!property || property.type !== 'checkbox') {
+    return null;
+  }
+  return property.checkbox || false;
 }
 
 /**
@@ -183,9 +197,6 @@ async function processPage(page) {
         updatePayload[FIELDS.nextReview] = {
           date: { start: nextReviewDate }
         };
-        updatePayload[FIELDS.calendarDate] = {
-          date: { start: nextReviewDate }
-        };
       }
       
       // 如果存在Last Review Date字段，写入今天
@@ -198,14 +209,9 @@ async function processPage(page) {
       action = 'initialized';
       
     } else if (currentStage === 'D30') {
-      // D30是终点，只同步Calendar Date
-      const nextReviewDate = getDate(page, FIELDS.nextReview);
-      if (nextReviewDate) {
-        updatePayload[FIELDS.calendarDate] = {
-          date: { start: nextReviewDate }
-        };
-        action = 'synced_calendar';
-      }
+      // D30是终点，不需要进一步操作
+      log('debug', `D30 stage reached for "${pageTitle}" - no further action needed`);
+      action = 'no_change';
       
     } else if (RULES[currentStage]) {
       // 检查当前阶段分数
@@ -223,9 +229,6 @@ async function processPage(page) {
           updatePayload[FIELDS.nextReview] = {
             date: { start: nextReviewDate }
           };
-          updatePayload[FIELDS.calendarDate] = {
-            date: { start: nextReviewDate }
-          };
         }
         
         // 写入Last Review Date
@@ -238,14 +241,9 @@ async function processPage(page) {
         action = 'advanced';
         
       } else {
-        // 分数不足，只同步Calendar Date
-        const nextReviewDate = getDate(page, FIELDS.nextReview);
-        if (nextReviewDate) {
-          updatePayload[FIELDS.calendarDate] = {
-            date: { start: nextReviewDate }
-          };
-          action = 'synced_calendar';
-        }
+        // 分数不足，不需要操作
+        log('debug', `Score insufficient for "${pageTitle}" (${score} < 70) - no action needed`);
+        action = 'no_change';
       }
     }
     
@@ -281,7 +279,6 @@ async function iterateDatabase(databaseId) {
     actions: {
       initialized: 0,
       advanced: 0,
-      synced_calendar: 0,
       no_change: 0
     }
   };
@@ -360,7 +357,6 @@ async function main() {
     log('info', '📈 Actions breakdown:');
     log('info', `   Initialized (D1): ${results.actions.initialized}`);
     log('info', `   Advanced stages: ${results.actions.advanced}`);
-    log('info', `   Synced calendar: ${results.actions.synced_calendar}`);
     log('info', `   No changes: ${results.actions.no_change}`);
     
     if (results.errors > 0) {
